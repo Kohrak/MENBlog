@@ -1,12 +1,14 @@
 var express = require("express"),
     bodyParser = require("body-parser"),
     mongoose = require("mongoose"),
+    methodOverride = require("method-override"),
     app = express();
 //APP setup
 mongoose.connect("mongodb://localhost/men_blog_app");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(methodOverride("_method"));
 
 //DB schemas
 
@@ -65,7 +67,30 @@ app.get("/blogs/:id", function(req, res){
        res.render("show.ejs", {blog: foundBlog});
     }
   })
- 
+})  
+
+//edit
+
+app.get("/blogs/:id/edit", function(req, res){
+  Blog.findById(req.params.id, function(err, foundBlog){
+    if (err){
+      res.redirect("/blogs")
+    } else {
+       res.render("edit.ejs", {blog: foundBlog});
+    }
+  })
+})  
+
+//update
+
+app.put("/blogs/:id", function(req, res){
+  Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
+    if (err){
+      res.redirect("/blogs")
+    } else {
+      res.redirect("/blogs/" + req.params.id);
+    }
+  })
 })
 
 //Local
